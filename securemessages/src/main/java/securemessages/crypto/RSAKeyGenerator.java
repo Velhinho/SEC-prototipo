@@ -1,10 +1,10 @@
-package securemessages;
+package securemessages.crypto;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 
-class RSAKeyGenerator {
+public class RSAKeyGenerator {
     public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(1024);

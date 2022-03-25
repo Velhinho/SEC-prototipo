@@ -1,4 +1,4 @@
-package securemessages;
+package securemessages.crypto;
 
 import javax.crypto.KeyGenerator;
 import java.security.Key;

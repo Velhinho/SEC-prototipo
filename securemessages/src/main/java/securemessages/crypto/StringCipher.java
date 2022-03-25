@@ -1,4 +1,4 @@
-package securemessages;
+package securemessages.crypto;
 
 import javax.crypto.Cipher;
 import java.security.*;

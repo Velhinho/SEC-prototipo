@@ -3,6 +3,8 @@ package securemessages;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import securemessages.channel.Channel;
+import securemessages.channel.ChannelException;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,33 +21,45 @@ public class ServerSide {
         this.channel = channel;
     }
 
-    public JsonObject makeResponse(Object response) {
+    /*
+    *
+    * {"func_call": "check_account", ...}
+    *
+    *
+    * {"request": {"func_call": "check_account", ...}, "signature": asdadsd}
+    * */
+
+    private JsonObject makeResponse(Object response) {
         var gson = new Gson();
-        var responseJson = gson.toJson(response);
-        return JsonParser.parseString(responseJson).getAsJsonObject();
+        var responseJson = new JsonObject();
+        responseJson.add("response", JsonParser.parseString(gson.toJson(response)));
+        return responseJson;
     }
 
-    public void processRequest() throws IOException {
-        var requestJson = channel.receiveMessage();
+    public void processRequest() throws RuntimeException, ChannelException {
+        var requestJson = getChannel().receiveMessage();
         var requestType = requestJson.get("requestType").getAsString();
         var gson = new Gson();
+        System.out.println("Json: " + requestJson);
 
         if(Objects.equals(requestType, "checkAccount")) {
             var request = gson.fromJson(requestJson.get("request"), CheckAccountRequest.class);
+            System.out.println("checkAccount: " + request);
 
             var response = List.of();
             var responseJson = makeResponse(response);
-            channel.sendMessage(responseJson);
+            getChannel().sendMessage(responseJson);
 
         } else if(Objects.equals(requestType, "audit")) {
             var request = gson.fromJson(requestJson.get("request"), AuditRequest.class);
+            System.out.println("audit: " + request);
 
             var response = List.of();
             var responseJson = makeResponse(response);
-            channel.sendMessage(responseJson);
+            getChannel().sendMessage(responseJson);
 
         } else {
-            throw new IOException("invalid json message type");
+            throw new RuntimeException("invalid json message type");
         }
     }
 }

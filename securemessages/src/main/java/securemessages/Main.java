@@ -1,12 +1,19 @@
 package securemessages;
 
-import java.util.concurrent.ExecutorService;
+import securemessages.crypto.RSAKeyGenerator;
+
 import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.submit(new EchoServer());
-        new EchoClient().run();
+        var executorService = Executors.newCachedThreadPool();
+        try {
+            var clientKeyPair = RSAKeyGenerator.generateKeyPair();
+            var serverKeyPair = RSAKeyGenerator.generateKeyPair();
+            executorService.submit(() -> EchoServer.run(clientKeyPair.getPublic(), serverKeyPair));
+            EchoClient.run(serverKeyPair.getPublic(), clientKeyPair);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
     }
 }
